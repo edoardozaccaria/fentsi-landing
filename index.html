@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>fentsi.com — From Inspo to... Actual.</title>
+    <meta name="description" content="fentsi.com: From Inspo to... Actual. Join the waitlist." />
+    <meta property="og:title" content="fentsi.com — From Inspo to... Actual." />
+    <meta property="og:description" content="Turn your references into a remarkable event aesthetic. Join the waitlist." />
+    <meta property="og:type" content="website" />
+
+    <!-- Favicon F -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>F</text></svg>">
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+      html { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+    </style>
+  </head>
+  <body class="min-h-dvh bg-black text-white">
+    <main class="mx-auto flex min-h-dvh max-w-3xl flex-col items-center justify-center px-6 text-center">
+      <!-- Brand -->
+      <div class="mb-8 text-3xl font-semibold tracking-wide text-white">FENTSI</div>
+
+      <!-- Headline / Tagline -->
+      <h1 class="mb-4 text-4xl font-semibold tracking-tight md:text-5xl">From Inspo to... Actual.</h1>
+      <p class="mb-10 max-w-xl text-white/60">Turn your references into a remarkable event aesthetic.</p>
+
+      <!-- Email form -->
+      <form id="signupForm" class="flex w-full max-w-xl flex-col gap-3 sm:flex-row justify-center" autocomplete="on">
+        <label for="email" class="sr-only">Email</label>
+        <input id="email" name="email" type="email" required placeholder="you@domain.com" class="w-full rounded-xl border border-white/15 bg-white/5 px-4 py-3 text-base text-white placeholder:text-white/40 outline-none focus:border-white/40" />
+        <button type="submit" class="inline-flex shrink-0 items-center justify-center rounded-xl bg-white px-5 py-3 text-sm font-medium text-black transition hover:opacity-90">Join</button>
+      </form>
+      <p class="mt-2 text-xs text-white/40">We’ll email you once. No spam.</p>
+
+      <!-- Alert messages -->
+      <div id="alert" class="mt-4 hidden w-full max-w-xl rounded-lg border p-3 text-sm"></div>
+
+      <!-- Footer -->
+      <footer class="absolute bottom-6 left-0 right-0 mx-auto max-w-3xl px-6 text-xs text-white/40">
+        <div class="flex items-center justify-between">
+          <span>© <span id="year"></span> Fentsi</span>
+          <a class="hover:text-white/70" href="mailto:fentsi@proton.me">fentsi@proton.me</a>
+        </div>
+      </footer>
+    </main>
+
+    <script>
+      // Add your Formspree endpoint here to collect real emails
+      const FORMSPREE_ENDPOINT = "";
+
+      const form = document.getElementById('signupForm');
+      const emailInput = document.getElementById('email');
+      const alertBox = document.getElementById('alert');
+      document.getElementById('year').textContent = new Date().getFullYear();
+
+      function showAlert(type, message) {
+        alertBox.className = (type === 'success')
+          ? 'mt-4 w-full max-w-xl rounded-lg border p-3 text-sm border-emerald-500/30 bg-emerald-500/10 text-emerald-200'
+          : (type === 'error')
+          ? 'mt-4 w-full max-w-xl rounded-lg border p-3 text-sm border-rose-500/30 bg-rose-500/10 text-rose-200'
+          : 'mt-4 w-full max-w-xl rounded-lg border p-3 text-sm border-white/10 bg-white/5 text-white/80';
+        alertBox.textContent = message;
+        alertBox.classList.remove('hidden');
+      }
+
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        if (!emailInput.checkValidity()) {
+          showAlert('error', 'Please enter a valid email address.');
+          return;
+        }
+        const email = emailInput.value.trim();
+
+        if (!FORMSPREE_ENDPOINT) {
+          const list = JSON.parse(localStorage.getItem('fentsi_waitlist') || '[]');
+          if (!list.includes(email)) list.push(email);
+          localStorage.setItem('fentsi_waitlist', JSON.stringify(list));
+          form.reset();
+          showAlert('success', 'Saved locally (demo mode). Add your Formspree endpoint to collect real emails.');
+          return;
+        }
+
+        try {
+          const res = await fetch(FORMSPREE_ENDPOINT, {
+            method: 'POST',
+            headers: { 'Accept': 'application/json', 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email })
+          });
+          if (res.ok) {
+            form.reset();
+            showAlert('success', "You're on the list. Thanks!");
+          } else {
+            showAlert('error', 'Submission failed. Try again.');
+          }
+        } catch (err) {
+          showAlert('error', 'Network error. Please try again.');
+        }
+      });
+    </script>
+  </body>
+</html>
+
