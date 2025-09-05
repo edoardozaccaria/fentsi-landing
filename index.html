@@ -3,9 +3,9 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>fentsi.com — From Inspo to... Actual.</title>
+    <title>fentsi.com</title>
     <meta name="description" content="fentsi.com: From Inspo to... Actual. Join the waitlist." />
-    <meta property="og:title" content="fentsi.com — From Inspo to... Actual." />
+    <meta property="og:title" content="fentsi.com" />
     <meta property="og:description" content="Turn your references into a remarkable event aesthetic. Join the waitlist." />
     <meta property="og:type" content="website" />
 
@@ -47,7 +47,6 @@
     </main>
 
     <script>
-      // Add your Formspree endpoint here to collect real emails
       const FORMSPREE_ENDPOINT = "https://formspree.io/f/mvgbvdla";
 
       const form = document.getElementById('signupForm');
@@ -73,15 +72,6 @@
         }
         const email = emailInput.value.trim();
 
-        if (!FORMSPREE_ENDPOINT || FORMSPREE_ENDPOINT.includes('your-endpoint-here')) {
-          const list = JSON.parse(localStorage.getItem('fentsi_waitlist') || '[]');
-          if (!list.includes(email)) list.push(email);
-          localStorage.setItem('fentsi_waitlist', JSON.stringify(list));
-          form.reset();
-          showAlert('success', 'Saved locally (demo mode). Add your Formspree endpoint to collect real emails.');
-          return;
-        }
-
         try {
           const fd = new FormData();
           fd.append('email', email);
@@ -100,16 +90,6 @@
             const data = await res.json().catch(() => ({}));
             const msg = (data && data.errors && data.errors[0] && data.errors[0].message) || 'Submission failed. Check your Formspree form settings.';
             showAlert('error', msg);
-          }
-        } catch (err) {
-          showAlert('error', 'Network error. Please try again.');
-        }
-      });
-          if (res.ok) {
-            form.reset();
-            showAlert('success', "You're on the list. Thanks!");
-          } else {
-            showAlert('error', 'Submission failed. Try again.');
           }
         } catch (err) {
           showAlert('error', 'Network error. Please try again.');
