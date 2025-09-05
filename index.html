@@ -73,7 +73,7 @@
         }
         const email = emailInput.value.trim();
 
-        if (!FORMSPREE_ENDPOINT) {
+        if (!FORMSPREE_ENDPOINT || FORMSPREE_ENDPOINT.includes('your-endpoint-here')) {
           const list = JSON.parse(localStorage.getItem('fentsi_waitlist') || '[]');
           if (!list.includes(email)) list.push(email);
           localStorage.setItem('fentsi_waitlist', JSON.stringify(list));
@@ -83,11 +83,28 @@
         }
 
         try {
+          const fd = new FormData();
+          fd.append('email', email);
+          fd.append('source', 'fentsi-landing');
+
           const res = await fetch(FORMSPREE_ENDPOINT, {
             method: 'POST',
-            headers: { 'Accept': 'application/json', 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email })
+            headers: { 'Accept': 'application/json' },
+            body: fd
           });
+
+          if (res.ok) {
+            form.reset();
+            showAlert('success', "You're on the list. Thanks!");
+          } else {
+            const data = await res.json().catch(() => ({}));
+            const msg = (data && data.errors && data.errors[0] && data.errors[0].message) || 'Submission failed. Check your Formspree form settings.';
+            showAlert('error', msg);
+          }
+        } catch (err) {
+          showAlert('error', 'Network error. Please try again.');
+        }
+      });
           if (res.ok) {
             form.reset();
             showAlert('success', "You're on the list. Thanks!");
@@ -101,4 +118,3 @@
     </script>
   </body>
 </html>
-
